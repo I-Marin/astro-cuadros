@@ -18,7 +18,7 @@ importers:
         specifier: ^1.8.0
         version: 1.8.0
       '@astrojs/vercel':
-        specifier: ^7.6.0
+        specifier: 7.6.0
         version: 7.6.0(astro@3.0.12)
       astro:
         specifier: ^3.0.12
