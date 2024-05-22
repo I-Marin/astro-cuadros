@@ -1,0 +1,58 @@
+--- 
+export interface ZoomImageProps {
+  src: string;
+  alt: string;
+}
+
+const { src, alt, slug } = Astro.props;
+---
+
+<div class="zoom-container rounded-xl">
+  <img transition:name=`${slug} image` src={src} alt={alt} class="zoom-image rounded-xl" />
+</div>
+
+<style>
+  .zoom-container {
+    position: relative;
+    overflow: hidden;
+    width: 100%; /* Ajusta según tus necesidades */
+    height: 100%; /* Ajusta según tus necesidades */
+    cursor: default;
+  }
+
+  .zoom-image {
+    transition: transform 0.3s ease;
+    width: 100%;
+    height: auto;
+    transform-origin: center center;
+  }
+</style>
+
+<script>
+    function initializeZoom() {
+      const zoomContainers = document.querySelectorAll('.zoom-container');
+      
+      zoomContainers.forEach(zoomContainer => {
+        const zoomImage = zoomContainer.querySelector('.zoom-image') as HTMLElement;
+  
+        zoomContainer.addEventListener('mousemove', (e: MouseEvent) => {
+          const rect = zoomContainer.getBoundingClientRect();
+          const x = ((e.clientX - rect.left) / rect.width) * 100;
+          const y = ((e.clientY - rect.top) / rect.height) * 100;
+          
+          zoomImage.style.transformOrigin = `${x}% ${y}%`;
+          zoomImage.style.transform = 'scale(3)'; // Ajusta la escala según sea necesario
+          zoomImage.style.cursor = 'zoom-in';
+        });
+  
+        zoomContainer.addEventListener('mouseleave', () => {
+          zoomImage.style.transformOrigin = 'center center';
+          zoomImage.style.transform = 'scale(1)';
+          zoomImage.style.cursor = 'default';
+        });
+      });
+    }
+  
+    document.addEventListener('astro:after-swap', initializeZoom);
+    document.addEventListener('DOMContentLoaded', initializeZoom);
+  </script>

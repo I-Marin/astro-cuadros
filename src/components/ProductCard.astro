@@ -1,0 +1,53 @@
+---
+import type Product from "@interfaces/product";
+import { getProductImage } from "@services/products";
+import Markdown from "@components/Markdown.astro";
+
+interface Props {
+  product: Product;
+  animate?: boolean;
+}
+
+const { product, animate = true } = Astro.props;
+const transitionName = product.attributes.slug;
+---
+
+<a
+  href={`/product/${product.attributes.slug}`} 
+  class={`block p-4`}
+>
+  <article
+    class="relative group flex flex-col grow w-64 shadow-sm rounded-lg overflow-hidden hover:shadow-xl hover:shadow-gray-100 transition-all h-full"
+  >
+  <div 
+    class="blur-[150px] absolute top-0 left-0 h-full w-full -z-10"
+  >
+      <img src={getProductImage(product)} alt="" class="h-full w-full">
+  </div>
+  <div class="grow w-64 overflow-hidden flex flex-col justify-center">
+      <img
+        src={getProductImage(product)}
+        alt={product.attributes.category}
+        transition:name={animate && `${transitionName} image`}     
+        class="object-center object-contain w-full grayscale-[0.1] group-hover:grayscale-0 h-full rounded-md group-hover:scale-105 transition-all"
+      />
+    </div>
+    <div class="p-6">
+      <h3
+        class="font-semibold truncate"
+      >
+        {product.attributes.title}
+      </h3>
+      
+      <div
+        class="text-gray-600 text-sm truncate"
+      >      
+        <Markdown markdown={product.attributes.description}  />
+      </div>
+          
+      <div class="text-right mt-4">
+        <span class="font-semibold">{product.attributes.price}€</span>
+      </div>
+    </div>
+  </article>
+</a>

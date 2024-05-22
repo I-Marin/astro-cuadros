@@ -1,0 +1,104 @@
+---
+import type Product from "@interfaces/product";
+import { getProductImage, getProduct, getProducts } from "@services/products";
+
+import Layout from "@layouts/Layout.astro";
+import ProductCard from "@components/ProductCard.astro";
+import Icon from "astro-icon";
+import ZoomImage from "@components/ZoomImage.astro"
+import Markdown from "@components/Markdown.astro";
+
+const { slug } = Astro.params;
+let relatedProducts: Product[];
+let product: Product|any;
+
+try {
+  product = await getProduct({query: {'filters[slug][$eq]': slug || ''}, wrappedByList: true})
+
+  relatedProducts = await getProducts({
+    query: {
+      'filters[category][$eq]': product.attributes.category || '', 
+      'filters[slug][$ne]': slug || '', 
+    }, 
+    wrappedByList: false
+  })  || []
+
+} catch (error) { 
+  return Astro.redirect('/404');
+}
+---
+
+<Layout
+  title={product.attributes.title}
+  description={product.attributes.description}
+  image={getProductImage(product)}
+>
+  <div class="max-w-4xl mx-auto relative">
+  <div class="grow w-64 overflow-hidden flex flex-col justify-center"></div>
+    <div class="flex gap-2 pb-10 items-center text-gray-500">
+      <a href="/" class="mr-4 p-2 z-10 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-full">
+        <Icon name="mdi:chevron-left" class="h-6 w-6" />
+      </a>
+      <a class="after:content-['/'] after:pl-2 capitalize" href="/">home</a>
+      <span class="after:content-['/'] after:pl-2 capitalize"
+        >{product.attributes.category}</span
+      >
+      <span>{product.attributes.title}</span>
+    </div>
+    <div class="relative flex flex-col md:flex-row sm sm:gap-8">
+      <div 
+        class="blur-[200px] absolute top-0 left-0 h-full w-full -z-10 animate-in"
+      >
+          <img src={getProductImage(product)} alt="" class="h-full w-full">
+      </div>
+      <div class="max-w-[450px] w-full h-full flex self-center">
+        <ZoomImage
+          src={getProductImage(product)}
+          alt={product.attributes.title}
+          slug={slug}
+        />
+      </div>
+      <article class="py-4 flex justify-between flex-col">
+        <div>
+          <h1 class="text-3xl sm:text-5xl font-bold animate-in">
+            {product.attributes.title}
+          </h1>
+          <div transition:name={`${slug} title`}></div>
+            <div
+              class="max-w-sm py-4 text-lg animate-in"
+            >
+                <Markdown markdown={product.attributes.description}  />
+            </div>
+        </div>
+        <div class="pt-2 sm:pt-8 text-right">
+          <div class="text-4xl font-semibold animate-in" >
+            {product.attributes.price}€
+          </div>
+          <button
+            id="add-to-cart"
+            d-slug={product.attributes.slug}
+            type="button"
+            class="mt-4 px-5 py-2 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-full"
+            transition:name="add-to-cart"
+            >Añadir al carro</button
+          >
+        </div>
+      </article>
+    </div>
+    <h4 class="font-bold text-lg pb-6 mt-10 -z-10" transition:name="more-products">También te podría gustar...</h4>
+    <div class="flex flex-wrap justify-center gap-4">
+      {
+        relatedProducts.length > 0 ? relatedProducts.map((pr) => <ProductCard product={pr} animate={false} />) : "No hay produtos relacionados"
+      }
+    </div>
+  </div>
+</Layout>
+
+<script>
+  document.addEventListener("click", (event) => {
+    if (location.pathname === "/") return;
+    if ((event as any)?.target?.tagName === "A") {
+      document.querySelector(".animate-in")?.classList.add("opacity-0");
+    }
+  });
+</script>

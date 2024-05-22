@@ -1,0 +1,22 @@
+{
+  "extends": "astro/tsconfigs/base",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["src/components/*"],
+      "@pages/*": ["src/pages/*"],
+      "@layouts/*": ["src/layouts/*"],
+      "@data": ["src/data/"],
+      "@public/*": ["public/"],
+      "@lib/*": ["src/lib/*"],
+      "@interfaces/*": ["src/interfaces/*"],
+      "@config": ["src/config"],
+      "@services/*": ["src/services/*"]
+    },
+    "plugins": [
+      {
+        "name": "@astrojs/ts-plugin"
+      },
+    ],
+  }
+}
